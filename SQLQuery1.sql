@@ -8,7 +8,7 @@ create table publisher(
  create table category(
 	categoryID int primary key,
 	name varchar(50),
-	description varchar(200),
+	
 
  );
  create table Member(
@@ -32,7 +32,6 @@ create table publisher(
  create table Book(
 	bookID varchar(5),
 	title varchar(30) not null,
-	branchName varchar(5),
 	gradeID int,
 	categoryID int,
 	penalty float,
