@@ -6,15 +6,15 @@ create table publisher(
 );
 
  create table category(
-	categoryID int primary key,
+	categoryID varchar(5) primary key,
 	name varchar(50),
 	
 
  );
  create table Member(
-	userID int primary key,
+	userID varchar(5) primary key,
 	name varchar(20) not null,
-	categoryID int,
+	categoryID varchar(5),
 	isActive int check (isActive in(0,1)),
 	registrationDate varchar(10),
 	gender varchar(8) check (gender in ('female','male')),
@@ -24,7 +24,7 @@ create table publisher(
  );
 
   create table grade(
-	gradeID int check (gradeID in (1,2,3)),
+	gradeID varchar(5) check (gradeID in ('1','2','3')),
 	name varchar(20),
 	primary key (gradeID),
  );
@@ -32,8 +32,8 @@ create table publisher(
  create table Book(
 	bookID varchar(5),
 	title varchar(30) not null,
-	gradeID int,
-	categoryID int,
+	gradeID varchar(5),
+	categoryID varchar(5),
 	penalty float,
 
 	primary key (bookID),
@@ -59,7 +59,7 @@ create table Authors(
 );
 create table loans(
 	bookID varchar(5) not null,
-	userID int not null,
+	userID varchar(5) not null,
 	returnDate char(10),
 	dateOut char(10),
 	isReturned int check (isReturned in(0,1)),
