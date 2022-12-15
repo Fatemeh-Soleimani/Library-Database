@@ -19,7 +19,7 @@ create table publisher(
 	registrationDate varchar(10),
 	gender varchar(8) check (gender in ('female','male')),
 	dateOfBirth varchar(10),
-	foreign key (categoryID) references category,
+	foreign key (categoryID) references category(categoryID),
 	
  );
 
@@ -38,23 +38,23 @@ create table publisher(
 
 	primary key (bookID),
 	
-	foreign key (categoryID) references category,
-	foreign key (gradeID) references grade,
+	foreign key (categoryID) references category(categoryID),
+	foreign key (gradeID) references grade(gradeID),
 );
 
 create table copies(
 	bookID varchar(5) not null,
 	numOfCopies int,
 	publisherName varchar(20) not null,
-	foreign key (bookID) references Book,
-	foreign key (publisherName) references publisher,
+	foreign key (bookID) references Book(bookID),
+	foreign key (publisherName) references publisher(publisherName),
 );
 
 create table Authors(
 	bookID varchar(5) not null,
 	Name varchar(40) not null,
 	nationality varchar(20),
-	foreign key (bookID) references Book,
+	foreign key (bookID) references Book(bookID),
 
 );
 create table loans(
@@ -64,8 +64,8 @@ create table loans(
 	dateOut char(10),
 	isReturned int check (isReturned in(0,1)),
 	numDays int,
-	foreign key (bookID) references Book,
-	foreign key (userID) references Member,
+	foreign key (bookID) references Book(bookID),
+	foreign key (userID) references Member(userID),
  );
 
 --for drop all tables
