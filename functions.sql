@@ -26,4 +26,16 @@ create function detailsOfUsers (@UserID varchar(5))
 	);
 
 --function 3
+create function numAndPublisher (@BookID varchar(5))
+	returns table
+	as
+	return(
+	select publisher.publisherName,copies.numOfCopies
+	from (Book inner join copies 
+	on Book.bookID=copies.bookID) 
+	inner join publisher 
+	on copies.publisherName=publisher.publisherName
+	where Book.bookID=@BookID
+	);
+
 

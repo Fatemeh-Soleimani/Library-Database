@@ -10,7 +10,7 @@ inner join category on category.categoryID=Book.categoryID
 
 
 --view 2
---books of Author from diffrent publishers with num of copies of them exist in library
+--books of Author from diffrent publishers with num of copies of them 
 create view booksFromDiffrentPublisher as
 select Book.title,publisher.publisherName, Authors.Name,copies.numOfCopies
 from 
