@@ -44,3 +44,15 @@ create function numAndPublisher (@BookID varchar(5))
 	where Book.bookID=@BookID
 	);
 
+--function 4 
+--usefull for get id of book when inserting
+DROP FUNCTION IF EXISTS getIDAndDetailsOfBook;
+
+create function getIDAndDetailsOfBook(@BookTitle varchar(30))
+returns table 
+as
+return (
+	select Book.bookID,Book.title,publisherName
+	from Book 
+	where Book.title=@BookTitle
+);
