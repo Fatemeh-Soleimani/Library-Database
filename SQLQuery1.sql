@@ -35,25 +35,27 @@ create table publisher(
 	gradeID varchar(5),
 	categoryID varchar(5),
 	penalty float,
-
+	publisherName varchar(20),
 	primary key (bookID),
-	
+	foreign key (publisherName) references publisher(publisherName),
 	foreign key (categoryID) references category(categoryID),
 	foreign key (gradeID) references grade(gradeID),
 );
 
+
 create table copies(
 	bookID varchar(5) not null,
 	numOfCopies int,
-	publisherName varchar(20) not null,
+	primary key(bookID,numOfCopies),
+
 	foreign key (bookID) references Book(bookID),
-	foreign key (publisherName) references publisher(publisherName),
 );
 
 create table Authors(
 	bookID varchar(5) not null,
 	Name varchar(40) not null,
 	nationality varchar(20),
+	primary key (bookID,Name),
 	foreign key (bookID) references Book(bookID),
 
 );
@@ -64,9 +66,19 @@ create table loans(
 	dateOut char(10),
 	isReturned int check (isReturned in(0,1)),
 	numDays int,
+	primary key(bookID,userID,dateOut),
 	foreign key (bookID) references Book(bookID),
 	foreign key (userID) references Member(userID),
  );
+
+ drop table Authors
+ drop table loans
+ drop table Member
+ drop table copies
+ drop table Book
+ drop table grade
+ drop table category
+ drop table publisher
 
 --for drop all tables
 EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
