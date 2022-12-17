@@ -1,18 +1,18 @@
 --trigger 3
 --show deleted book
-drop trigger deletebook;
+drop trigger deletedbook;
 
-alter trigger deleteBook
-on Book
-after delete
+create trigger deletedBook 
+on Book after delete
 as
 begin
 select *  from deleted
 end
 
+--delete from grade where gradeID='1'
 --insert into grade values ('1', 'kids')  
 --select * from grade
---delete from grade where gradeID='1'
+
 --trigger 2
 --delete book from copies when deleted from book
 
@@ -20,27 +20,42 @@ create trigger change_copies
 on Book
 after delete
 as 
+declare 
+	@id varchar(5),
+	@num int;
+
+select @id = d.bookID from deleted d;
+select @num = copies.numOfCopies from deleted d inner join copies on d.bookID=copies.bookID;
 begin
 	update copies
 	set numOfCopies=case
-						when numOfCopies <>0 and copies.bookID=deleted.bookID then numOfCopies-1 --why deleted cause error???
+						when @num <>0 and copies.bookID=@id then numOfCopies-1 --why deleted cause error???
 						else numOfCopies
 						end;
+
+	delete from copies where copies.numOfCopies=0
 	
 end
 
 
 --trigger 1
 --change copies table when adding book
+drop trigger change_copies;
 create trigger change_copies
 on Book 
 after insert 
 as
+declare 
+	@id varchar(5),
+	@num int;
+select @id = i.bookID from inserted i;
+
 begin 
-	case
-		when inserted.bookID exists in copies then  
-		else
+case
+	when @id exists in copies then update copies set copies.numOfCopies=numOfCopies+1 where copies.bookID=@id 
+	else insert into copies(bookID,numOfCopies) values(@id,1)
 	end;
+	
 end
 	
 
