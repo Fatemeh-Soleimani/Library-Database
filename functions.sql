@@ -1,20 +1,25 @@
 --function 1
 --number of available books in specific category
+DROP FUNCTION IF EXISTS BooksAvailable;
+
 create function BooksAvailable 
 (@category varchar(50))
 returns integer
 BEGIN 
 declare @bookCount integer;
 
-	set @bookCount = (select count(book.bookID) 
+	set @bookCount = (select count(*) 
 	from availableBooks
-	where category.name= @category
+	where CATN= @category
 	)
 	return @bookCount
 
 END
 
 --function 2
+
+DROP FUNCTION IF EXISTS detailsOfUsers;
+
 create function detailsOfUsers (@UserID varchar(5))
 	returns table 
 	as
@@ -26,6 +31,7 @@ create function detailsOfUsers (@UserID varchar(5))
 	);
 
 --function 3
+DROP FUNCTION IF EXISTS numAndPublisher;
 create function numAndPublisher (@BookID varchar(5))
 	returns table
 	as
@@ -34,8 +40,7 @@ create function numAndPublisher (@BookID varchar(5))
 	from (Book inner join copies 
 	on Book.bookID=copies.bookID) 
 	inner join publisher 
-	on copies.publisherName=publisher.publisherName
+	on Book.publisherName=publisher.publisherName
 	where Book.bookID=@BookID
 	);
-
 

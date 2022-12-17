@@ -12,15 +12,16 @@ inner join category on category.categoryID=Book.categoryID
 --view 2
 --books of Author from diffrent publishers with num of copies of them 
 create view booksFromDiffrentPublisher as
-select Book.title,publisher.publisherName, Authors.Name,copies.numOfCopies
+select Book.title,Book.publisherName, Authors.Name,copies.numOfCopies
 from 
 ((Book inner join Authors 
 on Book.bookID=Authors.bookID) 
 inner join copies 
 on Book.bookID=copies.bookID) 
 inner join publisher 
-on copies.publisherName=publisher.publisherName
+on publisher.publisherName=Book.publisherName
 
+--drop view booksFromDiffrentPublisher
 
 --view 3
 --title and num of copies of books in each category
@@ -58,12 +59,13 @@ group by Member.userID , Member.name
 
 --view 6
 --available books
+drop view if exists availableBooks;
 create view availableBooks as
-(select Book.bookID ,category.name
+(select Book.bookID ,category.name as CATN
 from Book inner join category 
 on Book.bookID=category.categoryID)
 EXCEPT
-(select Book.bookID , category.name
+(select Book.bookID , category.name as CATN
 from (Book inner join loans 
 on Book.bookID=loans.bookID) 
 inner join category 
