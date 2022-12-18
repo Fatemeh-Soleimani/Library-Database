@@ -9,9 +9,11 @@ begin
 select *  from deleted
 end
 
---delete from grade where gradeID='1'
---insert into grade values ('1', 'kids')  
---select * from grade
+--insert into book values ('50', 'Alchemist', '3', '1', '2', 'Dada')
+
+delete from book where bookID='50'
+ 
+--cant delete because of foreign keys
 
 --trigger 2
 --delete book from copies when deleted from book
@@ -37,6 +39,9 @@ begin
 	
 end
 
+--insert into book values ('50', 'Alchemist', '3', '1', '2', 'Dada')
+
+--delete from book where bookID='50'
 
 --trigger 1
 --change copies table when adding book
@@ -45,15 +50,20 @@ create trigger change_copies
 on Book 
 after insert 
 as
+begin
 declare 
 	@id varchar(5),
 	@num int;
 select @id = i.bookID from inserted i;
 
-begin 
-case
-	when @id exists in copies then update copies set copies.numOfCopies=numOfCopies+1 where copies.bookID=@id 
-	else insert into copies(bookID,numOfCopies) values(@id,1)
+ 
+--case
+	if @id exists in copies 
+	begin
+	update copies set copies.numOfCopies=numOfCopies+1 where copies.bookID=@id 
+	end
+	else 
+	insert into copies(bookID,numOfCopies) values(@id,1)
 	end;
 	
 end

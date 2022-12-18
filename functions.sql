@@ -2,7 +2,7 @@
 --number of available books in specific category
 DROP FUNCTION IF EXISTS BooksAvailable;
 
-create function BooksAvailable 
+create function dbo.BooksAvailable 
 (@category varchar(50))
 returns integer
 BEGIN 
@@ -16,6 +16,9 @@ declare @bookCount integer;
 
 END
 
+select CATN,dbo.BooksAvailable(CATN)
+from availableBooks
+
 --function 2
 
 DROP FUNCTION IF EXISTS detailsOfUsers;
@@ -24,13 +27,17 @@ create function detailsOfUsers (@UserID varchar(5))
 	returns table 
 	as
 	return(
-	select userID,name,categoryID,isActive,registrationDate
+	select userID,Member.name as fullName,category.name as favoriteCategory,isActive,registrationDate
 	,gender,dateOfBirth
-	from Member 
+	from Member inner join category on Member.categoryID=category.categoryID
 	where Member.userID=@UserID
 	);
 
+select * from detailsOfUsers('7')
+select * from detailsOfUsers('10')
+
 --function 3
+--show num of book and publisher of that
 DROP FUNCTION IF EXISTS numAndPublisher;
 create function numAndPublisher (@BookID varchar(5))
 	returns table
@@ -44,6 +51,7 @@ create function numAndPublisher (@BookID varchar(5))
 	where Book.bookID=@BookID
 	);
 
+select * from numAndPublisher('8')
 --function 4 
 --usefull for get id of book when inserting
 DROP FUNCTION IF EXISTS getIDAndDetailsOfBook;
@@ -56,3 +64,4 @@ return (
 	from Book 
 	where Book.title=@BookTitle
 );
+select * from getIDAndDetailsOfBook('Apples to Oranges')

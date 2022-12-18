@@ -31,7 +31,7 @@ BEGIN
 
 END
 
-
+EXEC bookLoaned '4'
 --------------------------------------------------------------
 --procedure 3
 --get favorite books of specific person 
@@ -43,12 +43,14 @@ AS
 BEGIN
 	select Book.title
 	from (Book inner join category 
-	on Book.bookID=category.categoryID)
+	on Book.categoryID=category.categoryID)
 	inner join Member 
 	on Member.categoryID=category.categoryID
 	where Member.userID=@userID
 END
 
+
+EXEC favoriteBook '4'
 --------------------------------------------------------------
 --procedure 4
 --books of specific publisher
@@ -67,6 +69,7 @@ BEGIN
 
 END
 
+EXEC publishersBook 'singer'
 --------------------------------------------------------------
 --procedure 5 
 --add new user to database of library
@@ -92,3 +95,5 @@ EXEC addUser @userID='1023',
 @registrationDate='01/06/2015',
 @gender='female',
 @dateOfBirth='02/05/2002'
+
+--select * from Member where userID='1023'

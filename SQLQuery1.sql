@@ -46,7 +46,7 @@ create table publisher(
 create table copies(
 	bookID varchar(5) not null,
 	numOfCopies int,
-	primary key(bookID,numOfCopies),
+	primary key(bookID),
 
 	foreign key (bookID) references Book(bookID),
 );
