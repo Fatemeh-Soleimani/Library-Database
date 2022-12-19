@@ -6,15 +6,14 @@ on Book after update
 as
 begin
 	
-	with updated (bookid,valid) as
-	(select bookid,valid from inserted
+	with updated (bookid) as
+	(select bookid from inserted
 	intersect
-	select bookid,valid from deleted)
+	select bookid from deleted)
 
-	update copies set numOfCopies=0
-	where bookID in (select bookid from updated where valid =0)
+	select * from inserted 
+	where bookID in (select bookid from updated)
 	
-
 end
 
 --drop trigger invalidBook 
@@ -27,18 +26,13 @@ as
 begin
 
 
-	with updated (bookid,num) as
-	(select bookid,numOfCopies from inserted 
+	with updated (bookid) as
+	(select bookid from inserted 
 	intersect
-	select bookid,numOfCopies from deleted)
+	select bookid from deleted)
 
-	--delete -> num--
-	update book set valid=0
-	where bookID in (select bookid from updated where num=0);
-
-	--add -> num++
-	update book set valid=1
-	where bookID in (select bookid from updated where num=1);
+	select * from inserted 
+	where bookID in (select bookid from updated)
 
 end
 
@@ -55,11 +49,7 @@ after insert
 as
 begin
 
-
-declare	@id varchar(5);
-select @id = (select bookID from inserted);
-
-insert into copies values(@id,1);
+select * from inserted
 
 end
 
