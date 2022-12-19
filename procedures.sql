@@ -6,14 +6,15 @@ create procedure add_book
 @title varchar(30),
 @gradeID varchar(5),
 @categoryID varchar(5),
-@penalty float)
+@penalty float,
+@publisherName varchar(20))
 as
 begin
 
 			
 	BEGIN TRY
 		IF @title IS NOT NULL
-			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty)
+			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty, @publisherName)
 		ELSE
 			RAISERROR('NULL Value is passed',15,1)
 	
@@ -24,6 +25,21 @@ begin
 
 end
 
+--drop procedure add_book
+--
+
+create procedure add_existing_book
+(@bookID varchar(5))
+as
+begin
+	
+	update copies set numOfCopies=
+	numOfCopies+1
+	where bookID=@bookID
+
+end
+
+--drop procedure add_existing_book
 ----------------------------
 --7
 --no input
@@ -39,6 +55,7 @@ begin
 
 end
 
+--drop procedure num_loan_books
 ---------------------------------
 --8
 create procedure num_loan_a_book
@@ -47,25 +64,27 @@ as
 begin
 		
 	select b.bookID, title, count(*) as count
-	from (select * from book where Book.bookID=@bookID) as b inner join loans
-	on b.bookID=loans.bookID
+	from (select * from book where Book.bookID=@bookID) as b inner join (select * from loans where @bookID=loans.bookID) as l
+	on b.bookID=l.bookID
 	group by b.bookID, title
 
 end
 
-------------------------------
---9 ????
+--drop procedure num_loan_a_book
+
+
+----------------
+--9
 
 create procedure take_book
 @bookID varchar(5),
-@publisherName varchar(20),
 @uID varchar(5)
 as
 begin
 	
 
 	declare @remain int;
-	--set @remain= function
+	set @remain= (select dbo.remaining_books(@bookID));
 	if @remain>0
 	begin
 		
@@ -75,11 +94,11 @@ begin
 
 end
 
+--drop procedure take_book
 ---------------------------
 --10
 create procedure return_book
 @bookID varchar(5),
-@publisherName varchar(20),
 @uID varchar(5)
 as
 begin
@@ -106,3 +125,4 @@ begin
 
 end
 
+--drop procedure return_book
