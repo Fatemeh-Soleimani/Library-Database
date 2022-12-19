@@ -36,6 +36,7 @@ create table publisher(
 	categoryID varchar(5),
 	penalty float,
 	publisherName varchar(20),
+	valid int check (valid in(0,1)),
 	primary key (bookID),
 	foreign key (publisherName) references publisher(publisherName),
 	foreign key (categoryID) references category(categoryID),
