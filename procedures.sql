@@ -156,7 +156,7 @@ begin
 					where bookID=@bookID and userID=@uID and isReturned=0 );
 
 	--???????????
-	set @ndays=DATEDIFF(DAY, @returnD, @Dout);
+	set @ndays=DATEDIFF(DAY, @Dout, @returnD);
 
 	update loans 
 	set returnDate=cast(CAST( GETDATE() AS Date ) as varchar),
@@ -230,8 +230,7 @@ begin
 
 	update loans 
 	set numDays=DATEDIFF(DAY, dateOut, returnDate)
-	--where numDays is null and 
-	where isReturned=1		
+	where numDays is null and isReturned=1		
 
 end
 
