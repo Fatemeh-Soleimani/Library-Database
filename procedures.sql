@@ -46,7 +46,7 @@ BEGIN
 	on Book.categoryID=category.categoryID)
 	inner join Member 
 	on Member.categoryID=category.categoryID
-	where Member.userID=@userID
+	where Book.valid=1 and Member.userID=@userID and Member.categoryID=Book.categoryID
 END
 
 
@@ -65,7 +65,7 @@ BEGIN
 	on Book.bookID=copies.bookID)
 	inner join publisher
 	on Book.publisherName=publisher.publisherName
-	where publisher.publisherName=@publisher
+	where Book.valid=1 and publisher.publisherName=@publisher 
 
 END
 

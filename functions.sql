@@ -48,7 +48,7 @@ create function numAndPublisher (@BookID varchar(5))
 	on Book.bookID=copies.bookID) 
 	inner join publisher 
 	on Book.publisherName=publisher.publisherName
-	where Book.bookID=@BookID
+	where Book.valid=1 and Book.bookID=@BookID
 	);
 
 select * from numAndPublisher('8')
@@ -62,6 +62,6 @@ as
 return (
 	select Book.bookID,Book.title,publisherName
 	from Book 
-	where Book.title=@BookTitle
+	where Book.valid=1 and Book.title=@BookTitle
 );
 select * from getIDAndDetailsOfBook('Apples to Oranges')
