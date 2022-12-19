@@ -14,7 +14,7 @@ begin
 			
 	BEGIN TRY
 		IF @title IS NOT NULL
-			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty, @publisherName)
+			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty, @publisherName,1)
 		ELSE
 			RAISERROR('NULL Value is passed',15,1)
 	
@@ -84,8 +84,12 @@ begin
 	
 
 	declare @remain int;
+	declare @valid int;
+
 	set @remain= (select dbo.remaining_books(@bookID));
-	if @remain>0
+	set @valid = (select valid from Book where bookID=@bookID);
+
+	if @remain>0 and @valid=1
 	begin
 		
 		insert into loans (bookID,userID,dateOut, isReturned) values (@bookID, @uID, cast(CAST( GETDATE() AS Date ) as varchar), 0) 
@@ -126,3 +130,31 @@ begin
 end
 
 --drop procedure return_book
+
+
+--------------------
+--11
+create procedure invalid_a_book
+@bookID varchar(5)
+as
+begin
+	
+	update Book set valid=0
+	where bookID=@bookID		
+
+end
+
+--drop procedure invalid_a_book
+------------------------
+--12
+create procedure delete_a_book
+@bookID varchar(5)
+as
+begin
+	
+	update copies set numOfCopies=numOfCopies-1
+	where bookID=@bookID		
+
+end
+
+--drop procedure delete_a_book
