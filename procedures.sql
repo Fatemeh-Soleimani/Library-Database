@@ -1,7 +1,7 @@
 
 --procedure 1
 --all books exists in specific category (using view 3)
-drop procedure if exists SP_booksInCategory;
+--drop procedure if exists SP_booksInCategory;
 
 create procedure SP_booksInCategory 
 (@category as varchar(50))
@@ -19,7 +19,7 @@ EXEC SP_booksInCategory 'Science Fiction'
 --------------------------------------------------------------
 --procedure 2 
 --all books loaned by specific user
-drop procedure if exists bookLoaned;
+--drop procedure if exists bookLoaned;
 
 create procedure bookLoaned 
 (@userID varchar(5))
@@ -35,7 +35,7 @@ EXEC bookLoaned '4'
 --------------------------------------------------------------
 --procedure 3
 --get favorite books of specific person 
-drop procedure if exists favoriteBook;
+--drop procedure if exists favoriteBook;
 
 create procedure favoriteBook 
 (@userID varchar(5))
@@ -54,7 +54,7 @@ EXEC favoriteBook '4'
 --------------------------------------------------------------
 --procedure 4
 --books of specific publisher
-drop procedure if exists publishersBook;
+--drop procedure if exists publishersBook;
  create procedure publishersBook
 (@publisher varchar(20))
 AS
@@ -73,7 +73,7 @@ EXEC publishersBook 'singer'
 --------------------------------------------------------------
 --procedure 5 
 --add new user to database of library
-drop procedure if exists addUser;
+--drop procedure if exists addUser;
 
 create procedure addUser 
 @userID varchar(5),
@@ -88,7 +88,6 @@ BEGIN
 	values(@userID,@name,@categoryID,1,@registrationDate,@gender,@dateOfBirth)
 END
 
---------------------------------------------------------------
 EXEC addUser @userID='1023',
 @name='Nancy Brown',
 @categoryID='2',

@@ -1,6 +1,6 @@
 --function 1
 --number of available books in specific category
-DROP FUNCTION IF EXISTS BooksAvailable;
+--DROP FUNCTION IF EXISTS BooksAvailable;
 
 create function dbo.BooksAvailable 
 (@category varchar(50))
@@ -19,9 +19,11 @@ END
 select CATN,dbo.BooksAvailable(CATN)
 from availableBooks
 
+---------------------------------------------------------------------------------
+
 --function 2
 
-DROP FUNCTION IF EXISTS detailsOfUsers;
+--DROP FUNCTION IF EXISTS detailsOfUsers;
 
 create function detailsOfUsers (@UserID varchar(5))
 	returns table 
@@ -36,9 +38,11 @@ create function detailsOfUsers (@UserID varchar(5))
 select * from detailsOfUsers('7')
 select * from detailsOfUsers('10')
 
+---------------------------------------------------------------------------------
+
 --function 3
 --show num of book and publisher of that
-DROP FUNCTION IF EXISTS numAndPublisher;
+--DROP FUNCTION IF EXISTS numAndPublisher;
 create function numAndPublisher (@BookID varchar(5))
 	returns table
 	as
@@ -52,9 +56,11 @@ create function numAndPublisher (@BookID varchar(5))
 	);
 
 select * from numAndPublisher('8')
+
+---------------------------------------------------------------------------------
 --function 4 
 --usefull for get id of book when inserting
-DROP FUNCTION IF EXISTS getIDAndDetailsOfBook;
+--DROP FUNCTION IF EXISTS getIDAndDetailsOfBook;
 
 create function getIDAndDetailsOfBook(@BookTitle varchar(30))
 returns table 
