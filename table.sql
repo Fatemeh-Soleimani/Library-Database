@@ -1,9 +1,18 @@
+
 create table publisher(
 	publisherName varchar(20) primary key,
 	address varchar(150),
-	phone varchar(20),
 	
 );
+
+create table publisher_phone(
+	publisherName varchar(20),
+	phone varchar(20),
+	primary key(publisherName,phone),
+	foreign key(publisherName) references publisher(publisherName)
+
+);
+
 
  create table category(
 	categoryID varchar(5) primary key,
@@ -11,9 +20,11 @@ create table publisher(
 	
 
  );
+
  create table Member(
 	userID varchar(5) primary key,
-	name varchar(20) not null,
+	firstname varchar(20) not null,
+	lastname varchar(20) not null,
 	categoryID varchar(5),
 	isActive int check (isActive in(0,1)),
 	registrationDate varchar(10),
@@ -29,6 +40,13 @@ create table publisher(
 	primary key (gradeID),
  );
 
+ create table Authors(
+	AuthorID varchar(5) primary key,
+	firstName varchar(40) not null,
+	lastName varchar(40) not null,
+	nationality varchar(20),
+);
+
  create table Book(
 	bookID varchar(5),
 	title varchar(30) not null,
@@ -36,11 +54,14 @@ create table publisher(
 	categoryID varchar(5),
 	penalty float,
 	publisherName varchar(20),
+	AuthorID varchar(5),
 	valid int check (valid in(0,1)),
 	primary key (bookID),
 	foreign key (publisherName) references publisher(publisherName),
 	foreign key (categoryID) references category(categoryID),
 	foreign key (gradeID) references grade(gradeID),
+	foreign key (AuthorID) references Authors(AuthorID)
+
 );
 
 
@@ -52,14 +73,6 @@ create table copies(
 	foreign key (bookID) references Book(bookID),
 );
 
-create table Authors(
-	bookID varchar(5) not null,
-	Name varchar(40) not null,
-	nationality varchar(20),
-	primary key (bookID,Name),
-	foreign key (bookID) references Book(bookID),
-
-);
 create table loans(
 	bookID varchar(5) not null,
 	userID varchar(5) not null,
@@ -72,11 +85,11 @@ create table loans(
 	foreign key (userID) references Member(userID),
  );
 
- drop table Authors
  drop table loans
  drop table Member
  drop table copies
  drop table Book
+ drop table Authors
  drop table grade
  drop table category
  drop table publisher

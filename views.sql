@@ -3,12 +3,13 @@
 --drop view if exists bookLoanedToUser;
 
 create view bookLoanedToUser as 
-select  Member.userID ,Book.title ,category.name
+select  Member.userID ,Book.title ,category.name as category
 from ((Book inner join loans on Book.bookID=loans.bookID) 
 inner join Member on loans.userID=Member.userID) 
 inner join category on category.categoryID=Book.categoryID
-where Book.valid=1
-select * from bookLoanedToUser
+--where Book.valid=1
+
+select * from bookLoanedToUser order by userID
 
 ---------------------------------------------------------------------------------
 
@@ -16,10 +17,10 @@ select * from bookLoanedToUser
 --books of Author from diffrent publishers with num of copies of them 
 --drop view if exists booksFromDiffrentPublisher;
 create view booksFromDiffrentPublisher as
-select Book.title,Book.publisherName, Authors.Name,copies.numOfCopies
+select Book.title,Book.publisherName, Authors.firstName+' '+Authors.lastName as author,copies.numOfCopies
 from 
-((Book inner join Authors 
-on Book.bookID=Authors.bookID) 
+(Book inner join Authors 
+on Book.AuthorID=Authors.AuthorID
 inner join copies 
 on Book.bookID=copies.bookID) 
 inner join publisher 
@@ -34,13 +35,13 @@ select * from booksFromDiffrentPublisher
 --title and num of copies of books in each category
 --drop view if exists booksInCategory;
 create view booksInCategory as 
-select Book.title as bookName,category.name as Category,copies.numOfCopies
-from 
-(Book inner join category 
-on Book.categoryID=category.categoryID)
+select category.name as Category,sum(copies.numOfCopies) as num
+from Book inner join category 
+on Book.categoryID=category.categoryID
 inner join copies
 on copies.bookID=Book.bookID
 where Book.valid=1
+group by category.name
 
 select * from booksInCategory
 --drop view booksInCategory
@@ -49,17 +50,17 @@ select * from booksInCategory
 
 --view 4
 --number of books loaned in each category
---drop view if exists numOfBooksEachCategory;
-create view numOfBooksEachCategory as
+--drop view if exists numOfBooksLoanedInEachCategory;
+create view numOfBooksLoanedInEachCategory as
 select category.name, count(loans.bookID) as numOfLoanedBook
-from ((Book inner join loans
-on Book.bookID = loans.bookID)
+from Book inner join loans
+on Book.bookID = loans.bookID
 inner join category 
-on category.categoryID=Book.categoryID)
+on category.categoryID=Book.categoryID
 where Book.valid=1
 group by category.name
 
-select * from numOfBooksEachCategory
+select * from numOfBooksLoanedInEachCategory
 
 ---------------------------------------------------------------------------------
 
@@ -67,36 +68,31 @@ select * from numOfBooksEachCategory
 --total late penalty of each user
 --drop view if exists totalPenalty;
 create view totalPenalty as
-select Member.userID,Member.name,sum(penalty*numDays) as Penalty
+select Member.userID,Member.firstname+' '+Member.lastname as name,sum(penalty*numDays) as Penalty
 from 
-(Book inner join loans 
-on Book.bookID=loans.bookID)
+Book inner join loans 
+on Book.bookID=loans.bookID
 inner join Member 
 on loans.userID=Member.userID
-where Book.valid=1
-group by Member.userID , Member.name
+--where Book.valid=1
+group by Member.userID,Member.firstname+' '+Member.lastname
 
 --return penalty null
 select * from totalPenalty
-drop view totalPenalty
+
+--drop view totalPenalty
 
 ---------------------------------------------------------------------------------
 
 --view 6
+--uses function 9
 --available books
 --drop view if exists availableBooks;
 create view availableBooks as
-(select Book.bookID ,category.name as CATN
-from Book inner join category 
-on Book.bookID=category.categoryID
-where Book.valid=1)
-EXCEPT
-(select Book.bookID , category.name as CATN
-from (Book inner join loans 
-on Book.bookID=loans.bookID) 
-inner join category 
-on category.categoryID=Book.categoryID
-where loans.isReturned=0 
+(select Book.bookID ,book.title, dbo.remaining_books(Book.bookID) as num
+from Book
+where Book.valid=1
 )
 
 select * from availableBooks
+order by bookID
