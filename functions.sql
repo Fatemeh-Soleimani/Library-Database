@@ -73,6 +73,10 @@ select * from dbo.numOf_books_of_grades()
 
 -------------------------------------------
 --4
+
+--compute numdays before compute penalty
+--exec compute_numdays
+
 create function compute_penalty(@Bid varchar(5), @uid varchar(5) , @Rdate varchar(10))
 returns int
 as
