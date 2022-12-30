@@ -67,15 +67,21 @@ select * from numOfBooksLoanedInEachCategory
 --view 5 
 --total late penalty of each user
 --drop view if exists totalPenalty;
+
+--to update umdays
+exec compute_numdays
+
 create view totalPenalty as
-select Member.userID,Member.firstname+' '+Member.lastname as name,sum(penalty*numDays) as Penalty
-from 
-Book inner join loans 
-on Book.bookID=loans.bookID
-inner join Member 
-on loans.userID=Member.userID
---where Book.valid=1
-group by Member.userID,Member.firstname+' '+Member.lastname
+(
+	select Member.userID,Member.firstname+' '+Member.lastname as name,sum(penalty*numDays) as Penalty
+	from 
+	Book inner join loans 
+	on Book.bookID=loans.bookID
+	inner join Member 
+	on loans.userID=Member.userID
+	--where Book.valid=1
+	group by Member.userID,Member.firstname+' '+Member.lastname
+)
 
 --return penalty null
 select * from totalPenalty

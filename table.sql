@@ -1,4 +1,3 @@
-
 create table publisher(
 	publisherName varchar(20) primary key,
 	address varchar(150),
@@ -76,8 +75,8 @@ create table copies(
 create table loans(
 	bookID varchar(5) not null,
 	userID varchar(5) not null,
-	returnDate char(10),
-	dateOut char(10),
+	returnDate date,
+	dateOut date,
 	isReturned int check (isReturned in(0,1)),
 	numDays int,
 	primary key(bookID,userID,dateOut),

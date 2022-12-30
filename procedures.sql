@@ -1,16 +1,15 @@
 
 --procedure 1
---all books exists in specific category (using view 3)
+--all books in specific category (using view 3)
 --drop procedure if exists SP_booksInCategory;
 
 create procedure SP_booksInCategory 
 (@category as varchar(50))
 AS
 BEGIN 
-	select bookName
-	from booksInCategory
-	where Category=@category
-	
+	select book.bookid,book.title
+	from book inner join (select * from category where name=@category) as c
+	on book.categoryID=c.categoryID 
 END
 
 EXEC SP_booksInCategory 'Science Fiction'
@@ -18,7 +17,7 @@ EXEC SP_booksInCategory 'Science Fiction'
 
 --------------------------------------------------------------
 --procedure 2 
---all books loaned by specific user
+--all books is loaned by specific user
 --drop procedure if exists bookLoaned;
 
 create procedure bookLoaned 
@@ -41,12 +40,10 @@ create procedure favoriteBook
 (@userID varchar(5))
 AS
 BEGIN
-	select Book.title
-	from (Book inner join category 
-	on Book.categoryID=category.categoryID)
-	inner join Member 
-	on Member.categoryID=category.categoryID
-	where Book.valid=1 and Member.userID=@userID and Member.categoryID=Book.categoryID
+	select Book.bookid,Book.title
+	from Book inner join (select * from Member where userID=@userID) as m
+	on m.categoryID=book.categoryID
+	where Book.valid=1
 END
 
 
@@ -60,12 +57,9 @@ EXEC favoriteBook '4'
 AS
 BEGIN
 
-	select Book.title
-	from (Book inner join copies 
-	on Book.bookID=copies.bookID)
-	inner join publisher
-	on Book.publisherName=publisher.publisherName
-	where Book.valid=1 and publisher.publisherName=@publisher 
+	select Book.bookid,Book.title
+	from book
+	where Book.valid=1 and publisherName=@publisher 
 
 END
 
@@ -77,19 +71,21 @@ EXEC publishersBook 'singer'
 
 create procedure addUser 
 @userID varchar(5),
-@name varchar(20),
+@fname varchar(20),
+@lname varchar(20),
 @categoryID varchar(5),
 @registrationDate varchar(10),
 @gender varchar(8),
 @dateOfBirth varchar(10)
 AS
 BEGIN
-	insert into Member(userID,name,categoryID,isActive,registrationDate,gender,dateOfBirth)
-	values(@userID,@name,@categoryID,1,@registrationDate,@gender,@dateOfBirth)
+	insert into Member(userID,firstname,lastname,categoryID,isActive,registrationDate,gender,dateOfBirth)
+	values(@userID,@fname,@lname,@categoryID,1,@registrationDate,@gender,@dateOfBirth)
 END
 
 EXEC addUser @userID='1023',
-@name='Nancy Brown',
+@fname='Nancy',
+@lname='Brown',
 @categoryID='2',
 @registrationDate='01/06/2015',
 @gender='female',
@@ -105,6 +101,7 @@ create procedure add_book
 @gradeID varchar(5),
 @categoryID varchar(5),
 @penalty float,
+@authorID varchar(5),
 @publisherName varchar(20))
 as
 begin
@@ -113,7 +110,7 @@ begin
 	BEGIN TRY
 		IF @title IS NOT NULL
 		begin
-			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty, @publisherName,1)
+			insert into book values (@bookID, @title, @gradeID, @categoryID, @penalty, @publisherName,@authorID,1)
 			insert into copies values(@bookID,1);
 		end
 		ELSE
@@ -132,12 +129,14 @@ exec add_book
 @gradeID='3',
 @categoryID='5',
 @penalty=2,
+@authorID='1',
 @publisherName='Loyly'
 
 
 --drop procedure add_book
 
----------
+-----------------------------
+--7
 
 create procedure add_existing_book
 (@bookID varchar(5))
@@ -152,7 +151,8 @@ begin
 	set @remain=(select numOfCopies 
 					from copies
 					where bookID=@bookID);
-
+	
+	--book num was 0 and after adding will be available and valid
 	if @remain=1
 	begin
 		update book set valid=1
@@ -168,6 +168,7 @@ exec add_existing_book @bookID='5';
 ----------------------------
 --7
 --no input
+--shows times that books are loaned
 create procedure num_loan_books
 as
 begin
@@ -186,6 +187,7 @@ exec num_loan_books
 
 ------------------------------------------
 --8
+--shows times that a book is loaned
 create procedure num_loan_a_book
 @bookID varchar(5)
 as
@@ -214,22 +216,26 @@ begin
 
 	declare @remain int;
 	declare @valid int;
+	declare @rDate date;
 
 	set @remain= (select dbo.remaining_books(@bookID));
 	set @valid = (select valid from Book where bookID=@bookID);
 
+	set @rDate=cast (DATEADD(MONTH, 1,  GETDATE()) as date);
+
 	if @remain>0 and @valid=1
 	begin
 		
-		insert into loans (bookID,userID,dateOut, isReturned) values (@bookID, @uID, cast(CAST( GETDATE() AS Date ) as varchar), 0) 
+		insert into loans (bookID,userID,returnDate,dateOut, isReturned,numDays) values 
+		(@bookID, @uID, @rDate , CAST( GETDATE() AS Date ), 0,0) 
 
 	end
-	else print('invalid')
+	else print('there is no book of this kind to loan')
 
 end
 
-exec take_book
-@bookID='3',
+exec dbo.take_book
+@bookID='9',
 @uID='5'
 
 --select * from loans
@@ -245,20 +251,27 @@ as
 begin
 	
 	declare @ndays int;
-	declare @returnD varchar(10);
-	declare @Dout varchar(10);
+	declare @returnD date;
+	declare @now date;
+	declare @Dout date;
 
-	set @returnD=cast(CAST( GETDATE() AS Date ) as varchar);
+	set @now=CAST( GETDATE() AS Date);
 
 	set @Dout=(select dateOut
 					from loans
 					where bookID=@bookID and userID=@uID and isReturned=0 );
 
-	--???????????
-	set @ndays=DATEDIFF(DAY, @Dout, @returnD);
+	set @returnD=(select returnDate
+					from loans
+					where bookID=@bookID and userID=@uID and isReturned=0 );
+
+	if @now>@returnD
+		set @ndays=DATEDIFF(DAY, @returnD,  @now);
+	else
+		set @ndays=0;
 
 	update loans 
-	set returnDate=cast(CAST( GETDATE() AS Date ) as varchar),
+	set returnDate=@now,
 	isReturned=1,
 	numDays=@ndays
 	where bookID=@bookID and userID=@uID and isReturned=0 
@@ -267,7 +280,7 @@ begin
 end
 
 exec return_book 
-@bookID='3',
+@bookID='9',
 @uID='5'
 
 --select * from loans
@@ -323,18 +336,45 @@ exec delete_a_book @bookID='5'
 
 ---------------------------------------
 --13
-create procedure compute_numDays
+create procedure compute_numdays
 as
 begin
+	
+	declare @now date;
+
+	set @now=CAST( GETDATE() AS Date);
 
 	update loans 
-	set numDays=DATEDIFF(DAY, dateOut, returnDate)
-	where numDays is null and isReturned=1		
+	set numDays=case 
+					when @now>returnDate then DATEDIFF(DAY, returnDate,  @now)
+					else 0
+				end
+	where isReturned=0 
+		
 
 end
 
-exec compute_numDays;
+exec compute_numdays
 
---select * from loans
+--drop compute_numdays
+----------------------------------------------
+--14
+create procedure add_author
+@AuthorID varchar(5),
+@firstName varchar(40),
+@lastName varchar(40),
+@nationality varchar(20)
+as
+begin
+	
+	insert into authors values (@AuthorID, @firstName, @lastName, @nationality)
 
---drop procedure compute_numDays
+end
+
+exec add_author
+@AuthorID ='22',
+@firstName ='jojo',
+@lastName ='',
+@nationality ='american';
+--select * from authors
+--drop procedure add_author
