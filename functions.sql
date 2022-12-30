@@ -1,64 +1,23 @@
---function 1
---number of available books in specific category
---DROP FUNCTION IF EXISTS BooksAvailable;
 
-create function dbo.BooksAvailable 
-(@category varchar(50))
-returns integer
-BEGIN 
-declare @bookCount integer;
-
-	set @bookCount = (select count(*) 
-	from availableBooks
-	where CATN= @category
-	)
-	return @bookCount
-
-END
-
-select CATN,dbo.BooksAvailable(CATN)
-from availableBooks
-
----------------------------------------------------------------------------------
-
---function 2
+--1
 
 --DROP FUNCTION IF EXISTS detailsOfUsers;
 
-create function detailsOfUsers (@UserID varchar(5))
+create function detailsOfUser (@UserID varchar(5))
 	returns table 
 	as
 	return(
-	select userID,Member.name as fullName,category.name as favoriteCategory,isActive,registrationDate
+	select userID,Member.firstname+' '+Member.lastname as Name,category.name as favoriteCategory,isActive,registrationDate
 	,gender,dateOfBirth
 	from Member inner join category on Member.categoryID=category.categoryID
 	where Member.userID=@UserID
 	);
 
-select * from detailsOfUsers('7')
-select * from detailsOfUsers('10')
+select * from detailsOfUser('7')
+select * from detailsOfUser('10')
 
 ---------------------------------------------------------------------------------
-
---function 3
---show num of book and publisher of that
---DROP FUNCTION IF EXISTS numAndPublisher;
-create function numAndPublisher (@BookID varchar(5))
-	returns table
-	as
-	return(
-	select publisher.publisherName,copies.numOfCopies
-	from (Book inner join copies 
-	on Book.bookID=copies.bookID) 
-	inner join publisher 
-	on Book.publisherName=publisher.publisherName
-	where Book.valid=1 and Book.bookID=@BookID
-	);
-
-select * from numAndPublisher('8')
-
----------------------------------------------------------------------------------
---function 4 
+--2
 --usefull for get id of book when inserting
 --DROP FUNCTION IF EXISTS getIDAndDetailsOfBook;
 
@@ -70,34 +29,12 @@ return (
 	from Book 
 	where Book.valid=1 and Book.title=@BookTitle
 );
+
 select * from getIDAndDetailsOfBook('Apples to Oranges')
 
-------------------------------------------
---4
-
-create function num_of_a_book(@id varchar(5))
-returns int
-as
-begin
-
-declare @out int;
-declare @valid int;
-
-set @valid = (select valid from Book where bookID=@id);
-
-set @out = case @valid 
-				when 1 then(select sum(numOfCopies)
-				from copies
-				where bookID=@id)
-				else 0
-			end
-
-return @out
-end
---drop function num_of_a_book
 
 --------------------------------------
---5
+--3
 
 create function numOf_books_of_a_grade(@Gid varchar(5))
 returns int
@@ -113,15 +50,15 @@ set @out = (select COUNT(*)
 return @out
 end
 
+select dbo.numOf_books_of_a_grade(3) as books_in_grade
+
 --drop function numOf_books_of_a_grade
 
 --or
---???? it dos not need input
+
 create function numOf_books_of_grades()
 returns table
 as
---begin
-
 return 
 	(select grade.name,COUNT(*) as num
 			from Book inner join grade
@@ -129,31 +66,13 @@ return
 			where valid=1
 			group by grade.name);
 
---end
 
 --drop function numOf_books_of_grades
 
-----------------------------------------
---6
-
-create function grade_publisher(@Gid varchar(5))
-returns table
-as
-
---begin
-
-return 
-	(select publisherName, count(*) as sum
-			from Book
-			where gradeID=@Gid and valid=1
-			group by publisherName);
-
---end
-
---drop function grade_publisher
+select * from dbo.numOf_books_of_grades()
 
 -------------------------------------------
---7
+--4
 create function compute_penalty(@Bid varchar(5), @uid varchar(5) , @Rdate varchar(10))
 returns int
 as
@@ -168,9 +87,12 @@ set @out = (select numDays*penalty
 return @out
 end
 
---drop function compute_penalty
--------------------------
+select dbo.compute_penalty(1, 4 , '2016-09-19') as penalty
 
+--drop function compute_penalty
+
+-------------------------
+--5
 --remaining books
 create function remaining_books(@bookid varchar(5))
 returns int
@@ -197,5 +119,7 @@ set @out=case @valid
 return @out;
 
 end
+
+select dbo.remaining_books(1) as remainig
 
 --drop function remaining_books
