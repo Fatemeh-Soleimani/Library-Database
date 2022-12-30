@@ -356,7 +356,7 @@ end
 
 exec compute_numdays
 
---drop compute_numdays
+--drop procedure compute_numdays
 ----------------------------------------------
 --14
 create procedure add_author
