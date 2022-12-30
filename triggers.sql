@@ -15,6 +15,17 @@ begin
 	
 end
 
+--invalid--
+exec invalid_a_book @bookID='1'
+--or
+--do it till num of it be 0
+exec delete_a_book @bookID='5'
+-----------
+
+--validation -> if book is invalid ,just add a coy to it ---
+exec add_existing_book @bookID='1';
+---------------
+
 --drop trigger invalidBook 
 
 -------------------------
@@ -35,6 +46,9 @@ begin
 
 end
 
+exec add_existing_book @bookID='5';
+--or
+exec delete_a_book @bookID='6'
 --drop trigger delete_add_a_book
 
 -----------------------------------------
@@ -51,6 +65,16 @@ begin
 select * from inserted
 
 end
+
+
+exec add_book 
+@bookID='45',
+@title ='hello',
+@gradeID='3',
+@categoryID='5',
+@penalty=2,
+@authorID='1',
+@publisherName='Loyly'
 
 --drop trigger insert_to_copies	
 
